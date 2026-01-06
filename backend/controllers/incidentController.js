@@ -28,22 +28,48 @@ const createIncident = async (req, res) => {
 };
 
 
+// const getIncidents = async (req, res) => {
+//   try {
+//     const { status, severity } = req.query;
+
+//     const filter = {
+//       createdBy: req.user.id,
+//     };
+
+//     if (status) filter.status = status;
+//     if (severity) filter.severity = severity;
+
+//     const incidents = await Incident.find(filter).sort({ createdAt: -1 });
+
+//     res.json({ incidents });
+//   } catch (err) {
+//     res.status(500).json({ message: "Server error", error: err.message });
+//   }
+// };
 const getIncidents = async (req, res) => {
   try {
-    const { status, severity } = req.query;
+    const { status, severity, all } = req.query;
 
-    const filter = {
-      createdBy: req.user.id,
-    };
+    const filter = {};
+
+    // 🔐 If NOT requesting all, show only user's incidents
+    if (all !== "true") {
+      filter.createdBy = req.user.id;
+    }
 
     if (status) filter.status = status;
     if (severity) filter.severity = severity;
 
-    const incidents = await Incident.find(filter).sort({ createdAt: -1 });
+    const incidents = await Incident.find(filter).sort({
+      createdAt: -1,
+    });
 
     res.json({ incidents });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
   }
 };
 
